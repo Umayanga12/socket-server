@@ -14,7 +14,6 @@ ADDRESS = (SERVER, PORT)
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(ADDRESS)
 
-
 # Async function to accept incoming connections
 async def start_server():
     server.listen()

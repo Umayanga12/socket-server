@@ -1,5 +1,6 @@
 import asyncio
 import os
+from db import add_client_ip,remove_client_ip
 
 DISCONNECT_MESSAGE = "DISCONNECT!!"
 CONNECT_MESSAGE = "CONNECT!!"
@@ -11,7 +12,9 @@ connected_clients = {}
 # Async function to handle each client connection
 async def handle_client(conn, addr):
     print(f"[NEW CONNECTION] {addr} connected.")
-    connected_clients[addr] = 'connected'  # Store IP address
+    connected_clients[addr] = 'connected'
+    # Save client IP in redis
+    await add_client_ip(addr)
     connected = True
     try:
         while connected:
@@ -24,6 +27,5 @@ async def handle_client(conn, addr):
                 # Echo message back to client
                 await asyncio.to_thread(conn.send, msg)
     finally:
-        # Remove client from the dictionary on disconnect
-        connected_clients.pop(addr, None)
+        await remove_client_ip(addr)
         conn.close()
