@@ -8,6 +8,8 @@ services:
       - app-network
     expose:
       - "12333"
+    ports:
+      - "12333:12333"
     environment:
       - WEBSOCKET_SERVER=true
 
@@ -15,6 +17,8 @@ services:
     image: "redis:alpine"
     networks:
       - app-network
+    ports:
+      - "6379:6379"
 
   postgres:
     image: "postgres:alpine"
