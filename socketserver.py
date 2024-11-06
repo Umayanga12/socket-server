@@ -7,7 +7,7 @@ from client import handle_client
 
 # Server configuration
 SERVER = socket.gethostbyname(socket.gethostname())
-PORT = int(os.environ.get("SERVERPORT", 5000))
+PORT = int(os.environ.get("SERVERPORT", 12333))
 ADDRESS = (SERVER, PORT)
 
 # Initialize server

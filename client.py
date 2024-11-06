@@ -14,12 +14,12 @@ Operations related to the client connection
 """
 
 # Dictionary to store client IPs
-#connected_clients = {}
+connected_clients = {}
 
 # Async function to handle each client connection
 async def handle_client(conn, addr):
     print(f"[NEW CONNECTION] {addr} connected.")
-    #connected_clients[addr] = 'connected'
+    connected_clients[addr] = 'connected'
     # Save client IP in redis
     await add_client_ip(addr)
     connected = True

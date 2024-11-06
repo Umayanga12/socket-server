@@ -2,7 +2,7 @@ import multiprocessing
 import redis
 import asyncio
 from socketserver import start_socketserver
-from listPostDb import listen_to_db
+from server import listen_to_db
 
 # Wrapper for starting the async database listener
 def start_db_listener():

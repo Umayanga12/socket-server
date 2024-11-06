@@ -1,6 +1,7 @@
 import redis.asyncio as redis
 import asyncio
-
+import redis.asyncio as aioredis
+from redis.exceptions import RedisError, DataError
 """
 Operations to interact with Redis database
     add, delete and rectrive client IP addresses
@@ -15,17 +16,20 @@ CLIENTS_KEY = "connected_clients"
 
 # Add IP into Redis when client connects to the server
 async def add_client_ip(ip: str):
+    """Adds the client IP address to a Redis set to ensure uniqueness."""
     try:
         if not ip:
             raise ValueError("IP address is required")
 
-        # Add IP to Redis set (unique entries)
+        # Add IP to Redis set (sadd ensures unique entries)
         async with REDIS_DATABASE.pipeline() as pipe:
             await pipe.sadd(CLIENTS_KEY, ip)
             await pipe.execute()
         return True
 
-    except redis.RedisError as e:
+    except DataError as e:
+        raise RuntimeError(f"Redis data error: {str(e)}")
+    except RedisError as e:
         raise RuntimeError(f"Redis error occurred: {str(e)}")
 
 # Remove IP from Redis when client disconnects from the server
@@ -84,3 +88,7 @@ async def get_all_client_ips():
 #     # Get and print all IPs
 #     ips = await get_all_client_ips()
 #     print("Connected IPs:", ips)
+#     await REDIS_DATABASE.aclose()
+
+
+# asyncio.run(main())
