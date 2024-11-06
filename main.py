@@ -1,7 +1,7 @@
 import multiprocessing
 import redis
 import asyncio
-from server import start_server
+from socketserver import start_socketserver
 from listPostDb import listen_to_db
 from concurrent.futures import ProcessPoolExecutor
 
@@ -13,7 +13,7 @@ async def main():
     if not response:
         raise RuntimeError("ip storage is not running")
     dbListener = multiprocessing.Process(target=listen_to_db)
-    serverProcess = multiprocessing.Process(target=start_server)
+    serverProcess = multiprocessing.Process(target=start_socketserver)
 
     # Start processes directly instead of using gather
     dbListener.start()
