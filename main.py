@@ -1,30 +1,31 @@
 import multiprocessing
 import redis
 import asyncio
-from socketserver import start_socketserver
-from listPostDb import listen_to_db
+from listPostDb import start_db_listener,start_socket_server
 from concurrent.futures import ProcessPoolExecutor
 
 # Main entry function
-async def main():
-    # Run the server and database listener concurrently
-    redis_client = redis.Redis()
-    response = await redis.from_url('redis://localhost').ping().bool()
-    if not response:
-        raise RuntimeError("ip storage is not running")
-    dbListener = multiprocessing.Process(target=listen_to_db)
-    serverProcess = multiprocessing.Process(target=start_socketserver)
+def main():
+    # Check if Redis is running
+    redis_client = redis.from_url('redis://localhost')
+    try:
+        if not redis_client.ping():
+            raise RuntimeError("IP storage (Redis) is not running")
+    except redis.ConnectionError:
+        raise RuntimeError("Failed to connect to Redis")
 
-    # Start processes directly instead of using gather
-    dbListener.start()
-    serverProcess.start()
+    # Start server and database listener processes with wrapper functions
+    db_listener = multiprocessing.Process(target=start_db_listener)
+    server_process = multiprocessing.Process(target=start_socket_server)
+
+    # Start both processes
+    db_listener.start()
+    server_process.start()
 
     # Wait for processes to complete
-    dbListener.join()
-    serverProcess.join()
+    db_listener.join()
+    server_process.join()
 
-# Multiprocessing to start server and database listener in separate processes
+# Entry point
 if __name__ == "__main__":
-    with ProcessPoolExecutor() as executor:
-        loop = asyncio.get_event_loop()
-        loop.run_until_complete(main())
+    main()

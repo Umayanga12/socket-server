@@ -1,38 +1,25 @@
 import asyncio
-import os
-from db import add_client_ip,remove_client_ip
+import websockets
+import logging
 
-DISCONNECT_MESSAGE = "DISCONNECT!!"
-CONNECT_MESSAGE = "CONNECT!!"
-FORMAT = os.environ.get("FORMAT", "utf-8")
+logging.basicConfig(level=logging.INFO)
 
-"""
-Operations related to the client connection
-    To store the client ip address use inmemory database
-            here - redis is used
-        Adding and removing client IPs when client conneted to the server and disconnet form the server
-"""
+# This is the WebSocket handler
+async def handle_client(websocket, path):
+    client_ip = websocket.remote_address[0]
+    logging.info(f"New connection from IP: {client_ip}")
 
-# Dictionary to store client IPs
-connected_clients = {}
-
-# Async function to handle each client connection
-async def handle_client(conn, addr):
-    print(f"[NEW CONNECTION] {addr} connected.")
-    connected_clients[addr] = 'connected'
-    # Save client IP in redis
-    await add_client_ip(addr)
-    connected = True
     try:
-        while connected:
-            msg = await asyncio.to_thread(conn.recv, 1024)
-            if not msg or msg.decode(FORMAT) == DISCONNECT_MESSAGE:
-                connected = False
-                print(f"[DISCONNECTED] {addr} disconnected.")
-            else:
-                print(f"[{addr}] {msg.decode(FORMAT)}")
-                # Echo message back to client
-                await asyncio.to_thread(conn.send, msg)
-    finally:
-        await remove_client_ip(addr)
-        conn.close()
+        async for message in websocket:
+            logging.info(f"Received message from {client_ip}: {message}")
+    except websockets.ConnectionClosed as e:
+        logging.info(f"Connection closed for {client_ip}: {e}")
+
+
+async def main():
+    server = await websockets.serve(handle_client, "0.0.0.0", 12333)
+    print("WebSocket server started...")
+    await server.wait_closed()
+
+# Run the server
+asyncio.run(main())
