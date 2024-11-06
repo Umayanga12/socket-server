@@ -6,13 +6,20 @@ DISCONNECT_MESSAGE = "DISCONNECT!!"
 CONNECT_MESSAGE = "CONNECT!!"
 FORMAT = os.environ.get("FORMAT", "utf-8")
 
+"""
+Operations related to the client connection
+    To store the client ip address use inmemory database
+            here - redis is used
+        Adding and removing client IPs when client conneted to the server and disconnet form the server
+"""
+
 # Dictionary to store client IPs
-connected_clients = {}
+#connected_clients = {}
 
 # Async function to handle each client connection
 async def handle_client(conn, addr):
     print(f"[NEW CONNECTION] {addr} connected.")
-    connected_clients[addr] = 'connected'
+    #connected_clients[addr] = 'connected'
     # Save client IP in redis
     await add_client_ip(addr)
     connected = True

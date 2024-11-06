@@ -9,7 +9,7 @@ from concurrent.futures import ProcessPoolExecutor
 async def main():
     # Run the server and database listener concurrently
     redis_client = redis.Redis()
-    response = await redis.from_url('redis://localhost').ping()
+    response = await redis.from_url('redis://localhost').ping().bool()
     if not response:
         raise RuntimeError("ip storage is not running")
     dbListener = multiprocessing.Process(target=listen_to_db)
